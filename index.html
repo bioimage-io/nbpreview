@@ -36,6 +36,10 @@
                     }
                     $holder.appendChild(notebook.render());
                     Prism.highlightAll();
+
+                    // hide controls
+                    const ctrls = document.getElementById('controls');
+                    ctrls.style.display = 'none';
                 }
 
                 async function renderNotebook(url) {
@@ -51,8 +55,6 @@
 
                 async function run(ctx) {
                     if (ctx.data && ctx.data.source) {
-                        const ctrls = document.getElementById('controls');
-                        ctrls.style.display = 'none';
                         await renderNotebook(ctx.data.source)
                     }
                 }
