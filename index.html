@@ -21,7 +21,8 @@
         if (window.self !== window.top) {
             loadImJoyRPC().then(async (imjoyRPC) => {
                 const api = await imjoyRPC.setupRPC({
-                    name: 'notebook-preview'
+                    name: 'Notebook Preview',
+                    description: 'A plugin for previewing Jupyter notebook (without a server).',
                 });
 
                 function setup() {
