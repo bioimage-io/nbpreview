@@ -1,32 +1,84 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>IPython/Jupyter Notebook Previewer</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1">
-        <script type="text/javascript" src="js/vendor/es5-shim.min.js"></script>
-        <script type="text/javascript" src="js/vendor/marked.min.js"></script>
-        <script type="text/javascript" src="js/vendor/ansi_up.min.js"></script>
-        <script type="text/javascript" src="js/vendor/prism.min.js"></script>
-        <script type="text/javascript" src="js/vendor/katex.min.js"></script>
-        <script type="text/javascript" src="js/vendor/katex-auto-render.min.js"></script>
-        <script type="text/javascript" src="js/vendor/notebook.min.js"></script>
-        <link rel="stylesheet" href="css/vendor/katex.min.css" />
-        <link rel="stylesheet" href="css/vendor/prism.css" />
-        <link rel="stylesheet" href="css/vendor/notebook.css" />
-        <link rel="stylesheet" href="css/nbpreview.css" />
-    </head>
-    <body>
-        <div id="main">
-            <div id="controls">
-                <div id="header">IPython/Jupyter Notebook Previewer</div>
-                <input type="file" id="file">
-            </div>
-            <div id="notebook-holder"></div>
-            <div id="footer">
-                <a href="https://github.com/jsvine/nbpreview">See the <code>nbpreview</code> code on GitHub</a>.
-            </div>
+
+<head>
+    <title>IPython/Jupyter Notebook Previewer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <script type="text/javascript" src="js/vendor/es5-shim.min.js"></script>
+    <script type="text/javascript" src="js/vendor/marked.min.js"></script>
+    <script type="text/javascript" src="js/vendor/ansi_up.min.js"></script>
+    <script type="text/javascript" src="js/vendor/prism.min.js"></script>
+    <script type="text/javascript" src="js/vendor/katex.min.js"></script>
+    <script type="text/javascript" src="js/vendor/katex-auto-render.min.js"></script>
+    <script type="text/javascript" src="js/vendor/notebook.min.js"></script>
+    <script src="https://lib.imjoy.io/imjoy-loader.js"></script>
+    <link rel="stylesheet" href="css/vendor/katex.min.css" />
+    <link rel="stylesheet" href="css/vendor/prism.css" />
+    <link rel="stylesheet" href="css/vendor/notebook.css" />
+    <link rel="stylesheet" href="css/nbpreview.css" />
+    <script>
+        if (window.self !== window.top) {
+            loadImJoyRPC().then(async (imjoyRPC) => {
+                const api = await imjoyRPC.setupRPC({
+                    name: 'notebook-preview'
+                });
+
+                function setup() {
+                    api.log('ImJoy RPC initialized.')
+                }
+
+                function render_notebook(ipynb) {
+                    var $holder = document.querySelector("#notebook-holder");
+                    var notebook = nb.parse(ipynb);
+                    while ($holder.hasChildNodes()) {
+                        $holder.removeChild($holder.lastChild);
+                    }
+                    $holder.appendChild(notebook.render());
+                    Prism.highlightAll();
+                }
+
+                async function renderNotebook(url) {
+                    try {
+                        const response = await fetch(url);
+                        const parsed = JSON.parse(await response.text());
+                        render_notebook(parsed);
+                    } catch (e) {
+                        api.showMessage('Failed to parse notebook file from ' + url)
+                    }
+
+                }
+
+                async function run(ctx) {
+                    if (ctx.data && ctx.data.source) {
+                        const ctrls = document.getElementById('controls');
+                        ctrls.style.display = 'none';
+                        await renderNotebook(ctx.data.source)
+                    }
+                }
+                
+                api.export({
+                    setup,
+                    run,
+                    renderNotebook
+                });
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div id="main">
+        <div id="controls">
+            <div id="header">IPython/Jupyter Notebook Previewer</div>
+            <input type="file" id="file">
         </div>
-        <script src="js/nbpreview.js"></script>
-    </body>
+        <div id="notebook-holder"></div>
+        <div id="footer">
+            <a href="https://github.com/jsvine/nbpreview">See the <code>nbpreview</code> code on GitHub</a>.
+        </div>
+    </div>
+    <script src="js/nbpreview.js"></script>
+</body>
+
 </html>
