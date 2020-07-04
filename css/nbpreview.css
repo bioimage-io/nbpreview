@@ -1,11 +1,13 @@
 body {
     font-family: Helvetica Neue, Helvetica, sans-serif;
     font-size: 14px;
+    margin-left: 85px;
+    margin-right: 40px;
 }
 
 #main {
     width: 99%;
-    max-width: 750px;
+    max-width: 1024px;
     margin: 0 auto;
 }
 
